@@ -12,8 +12,14 @@ void exportFile(CFTypeRef viewRef, char * name, int32_t id) {
 	NSView *view = (__bridge NSView *)viewRef;
 
 	NSSavePanel *panel = [NSSavePanel savePanel];
-
-    [panel setNameFieldStringValue:@(name)];
+	NSString *path = [NSString stringWithUTF8String:name];
+	NSString *file = path;
+	NSString *dir = [path stringByDeletingLastPathComponent];
+	if([dir length] != 0) {
+		[panel setDirectoryURL:[NSURL URLWithString:dir]];
+		file = [path lastPathComponent];
+	}
+	[panel setNameFieldStringValue:file];
 	[panel beginSheetModalForWindow:[view window] completionHandler:^(NSInteger result){
 		if (result == NSModalResponseOK) {
 			exportCallback((char *)[[panel URL].absoluteString UTF8String], id);
